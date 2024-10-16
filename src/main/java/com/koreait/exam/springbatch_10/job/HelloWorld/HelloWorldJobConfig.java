@@ -1,11 +1,12 @@
-
 package com.koreait.exam.springbatch_10.job.HelloWorld;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -26,11 +27,13 @@ public class HelloWorldJobConfig {
     }
 
     @Bean
+    @JobScope
     public Step helloWorldStep1() {
         return stepBuilderFactory.get("helloWorldStep1").tasklet(helloWorldTasklet()).build();
     }
 
     @Bean
+    @StepScope
     public Tasklet helloWorldTasklet() {
         return (stepContribution, chunkContext) -> {
             System.out.println("헬로월드!!!");
