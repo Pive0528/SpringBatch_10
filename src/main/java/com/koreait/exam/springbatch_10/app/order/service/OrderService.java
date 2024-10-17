@@ -26,9 +26,9 @@ public class OrderService {
     private final CartService cartService;
     private final OrderRepository orderRepository;
 
+    // 전달 받은 회원의 장바구니에 있는 아이템들을 전부 가져와서 주문으로 변환 하는 로직
     @Transactional
     public Order createFromCart(Member member) {
-        // 전달 받은 회원의 장바구니에 있는 아이템들을 전부 가져와
 
         // 만약에 장바구니의 특정 상품이 판매 불가 상태야 => 삭제
         // 만약에 장바구니의 특정 상품이 판매 가능 상태야 => 주문 품목으로 옮긴 후 삭제
