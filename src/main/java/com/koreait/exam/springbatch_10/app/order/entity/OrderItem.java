@@ -1,7 +1,7 @@
-package com.koreait.exam.springbatch_10.app.cart.entity;
+package com.koreait.exam.springbatch_10.app.order.entity;
 
 import com.koreait.exam.springbatch_10.app.base.entity.BaseEntity;
-import com.koreait.exam.springbatch_10.app.member.entity.Member;
+import com.koreait.exam.springbatch_10.app.product.entity.Product;
 import com.koreait.exam.springbatch_10.app.product.entity.ProductOption;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +10,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 
 import static javax.persistence.FetchType.LAZY;
@@ -20,15 +21,19 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true)
-public class CartItem extends BaseEntity {
+public class OrderItem extends BaseEntity {
 
     @ManyToOne(fetch = LAZY)
     @ToString.Exclude
-    private Member member;
+    private Order order;
+
     @ManyToOne(fetch = LAZY)
-    @ToString.Exclude
     private ProductOption productOption;
 
     private int quantity;
 
+    public OrderItem(ProductOption productOption, int quantity) {
+        this.productOption = productOption;
+        this.quantity = quantity;
+    }
 }
