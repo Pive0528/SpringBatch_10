@@ -3,6 +3,7 @@ package com.koreait.exam.springbatch_10.app.order.service;
 import com.koreait.exam.springbatch_10.app.cart.entity.CartItem;
 import com.koreait.exam.springbatch_10.app.cart.service.CartService;
 import com.koreait.exam.springbatch_10.app.member.entity.Member;
+import com.koreait.exam.springbatch_10.app.member.service.MemberService;
 import com.koreait.exam.springbatch_10.app.order.entity.Order;
 import com.koreait.exam.springbatch_10.app.order.entity.OrderItem;
 import com.koreait.exam.springbatch_10.app.order.repository.OrderRepository;
@@ -25,6 +26,7 @@ public class OrderService {
 
     private final CartService cartService;
     private final OrderRepository orderRepository;
+    private final MemberService memberService;
 
     // 전달 받은 회원의 장바구니에 있는 아이템들을 전부 가져와서 주문으로 변환 하는 로직
     @Transactional
@@ -62,5 +64,24 @@ public class OrderService {
         orderRepository.save(order);
 
         return order;
+    }
+
+    @Transactional
+    public void payByRestCashOnly(Order order) {
+        Member orderer = order.getMember();
+
+        long restCash = orderer.getRestCash();
+
+        int payPrice = order.calculatePayPrice();
+
+        if(payPrice > restCash) {
+            throw new RuntimeException("예치금이 부족해");
+        }
+
+        memberService.addCash(orderer, payPrice * -1,"주문결제_예치금결제");
+
+        order.setPaymentDone();
+
+        orderRepository.save(order);
     }
 }

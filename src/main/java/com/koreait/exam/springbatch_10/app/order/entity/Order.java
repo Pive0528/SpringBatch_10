@@ -17,7 +17,7 @@ import static javax.persistence.CascadeType.ALL;
 @NoArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true)
-@Table(name="product_order")
+@Table(name = "product_order")
 public class Order extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,5 +31,21 @@ public class Order extends BaseEntity {
         orderItem.setOrder(this);
 
         orderItems.add(orderItem);
+    }
+
+    public int calculatePayPrice() {
+        int payPrice = 0;
+
+        for (OrderItem orderItem : orderItems) {
+            payPrice += orderItem.calculatePayPrice();
+        }
+
+        return payPrice;
+    }
+
+    public void setPaymentDone() {
+        for(OrderItem orderItem : orderItems) {
+            orderItem.setPaymentDone();
+        }
     }
 }
