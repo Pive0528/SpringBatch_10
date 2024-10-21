@@ -22,10 +22,16 @@ import java.util.List;
 @Slf4j
 public class DevInitData {
 
+    private boolean initDataDone = false;
+
     @Bean
     public CommandLineRunner initData(MemberService memberService, ProductService productService, CartService cartService,
                                       OrderService orderService) {
         return args -> {
+
+            if (initDataDone) return;
+
+            initDataDone = true;
 
             class Helper {
                 public Order order(Member member, List<ProductOption> productOptions) {
