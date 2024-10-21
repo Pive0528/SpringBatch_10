@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @Profile("dev")
@@ -25,6 +26,20 @@ public class DevInitData {
     public CommandLineRunner initData(MemberService memberService, ProductService productService, CartService cartService,
                                       OrderService orderService) {
         return args -> {
+
+            class Helper {
+                public Order order(Member member, List<ProductOption> productOptions) {
+                    for (int i = 0; i < productOptions.size(); i++) {
+                        ProductOption productOption = productOptions.get(i);
+
+                        cartService.addItem(member, productOption, i + 1);
+                    }
+                    return orderService.createFromCart(member);
+                }
+            }
+
+            Helper helper = new Helper();
+
             String password = "{noop}1234";
             Member member1 = memberService.join("user1", password, "user1@test.com");
             Member member2 = memberService.join("user2", password, "user2@test.com");
@@ -38,8 +53,7 @@ public class DevInitData {
             // 5천원 사용
             memberService.addCash(member1, -5_000, "출금_일반");
 
-            // 30만원 충전
-            memberService.addCash(member1, 300_000, "충전_무통장입금");
+            memberService.addCash(member1, 10_000_000, "충전_무통장입금");
 
             long restCash = memberService.getRestCash(member1);
 
@@ -57,14 +71,11 @@ public class DevInitData {
                             new ProductOption("BLACK", "100")));
 
             ProductOption product1Option__RED_95 = product1.getProductOptions().get(0);
+            ProductOption product1Option__RED_100 = product1.getProductOptions().get(1);
             ProductOption product1Option__BLUE_95 = product1.getProductOptions().get(2);
+            ProductOption product1Option__BLUE_100 = product1.getProductOptions().get(3);
 
-            // 회원 1, 주문 1
-            cartService.addItem(member1, product1Option__RED_95, 1); // productOption__RED_95  총 수량 1
-            cartService.addItem(member1, product1Option__RED_95, 2); // productOption__RED_95 총 수량 3
-            cartService.addItem(member1, product1Option__BLUE_95, 1); //productOption__BLUE_95  총 수량 1
-
-            Order order1 = orderService.createFromCart(member1);
+            Order order1 = helper.order(member1, Arrays.asList(product1Option__RED_95, product1Option__RED_95, product1Option__BLUE_95));
 
             int order1PayPrice = order1.calculatePayPrice();
             log.info("order1 pay price: " + order1PayPrice);
@@ -73,26 +84,33 @@ public class DevInitData {
 
             // 회원 2, 주문 2
 
-            ProductOption product2Option__BLACK_95 = product2.getProductOptions().get(2);
             ProductOption product2Option__WHITE_95 = product2.getProductOptions().get(0);
+            ProductOption product2Option__WHITE_100 = product2.getProductOptions().get(1);
+            ProductOption product2Option__BLACK_95 = product2.getProductOptions().get(2);
+            ProductOption product2Option__BLACK_100 = product2.getProductOptions().get(3);
 
-            cartService.addItem(member2, product2Option__BLACK_95, 1); // product2Option__BLACK_95  총 수량 1
-            cartService.addItem(member2, product2Option__BLACK_95, 2); // product2Option__BLACK_95 총 수량 3
-            cartService.addItem(member2, product2Option__WHITE_95, 1); //product2Option__WHITE_95  총 수량 1
 
-            Order order2 = orderService.createFromCart(member2);
+            Order order2 = helper.order(member2, Arrays.asList(product2Option__BLACK_95, product2Option__BLACK_95, product2Option__WHITE_95));
 
             int order2PayPrice = order2.calculatePayPrice();
             log.info("order2 pay price: " + order2PayPrice);
 
             // 37만원 충전
-            memberService.addCash(member2, 370_000, "충전_무통장입금");
+            memberService.addCash(member2, 1_000_000_000, "충전_무통장입금");
 
             log.info("member2 restCash: " + member2.getRestCash());
 
             orderService.payByRestCashOnly(order2);
 
             orderService.refund(order2);
+
+            Order order3 = helper.order(member2, Arrays.asList(product1Option__RED_95, product1Option__RED_100, product2Option__BLACK_95, product2Option__WHITE_95));
+
+            orderService.payByRestCashOnly(order3);
+
+            Order order4 = helper.order(member1, Arrays.asList(product1Option__RED_95, product2Option__WHITE_95));
+
+            orderService.payByRestCashOnly(order4);
         };
     }
 }
