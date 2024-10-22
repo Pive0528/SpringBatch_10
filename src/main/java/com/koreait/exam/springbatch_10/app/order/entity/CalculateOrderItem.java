@@ -47,15 +47,10 @@ public class CalculateOrderItem extends BaseEntity {
     private int pgFee; // 결제대행사 수수료
     private int refundQuantity; // 환불 한 갯수
     private boolean isPaid; // 결제 여부
+    private LocalDateTime payDate; // 결제일
 
     // 상품
     private String productName;
-
-    // 상품 옵션
-//    private String productOptionColor;
-//    private String productOptionSize;
-//    private String productOptionDisplayColor;
-//    private String productOptionDisplaySize;
 
     @Embedded
     @AttributeOverrides({
@@ -81,14 +76,12 @@ public class CalculateOrderItem extends BaseEntity {
         pgFee = orderItem.getPgFee();
         refundQuantity = orderItem.getRefundQuantity();
         isPaid = orderItem.isPaid();
+        payDate = orderItem.getPayDate();
 
         //상품
         productName = orderItem.getProductOption().getProduct().getName();
         //상품 옵션
-//        productOptionColor = orderItem.getProductOption().getColor();
-//        productOptionSize = orderItem.getProductOption().getSize();
-//        productOptionDisplayColor = orderItem.getProductOption().getDisplayColor();
-//        productOptionDisplaySize = orderItem.getProductOption().getDisplaySize();
+
 
         embProductOption = new EmbProductOption(orderItem.getProductOption());
 
